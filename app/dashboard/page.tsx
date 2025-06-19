@@ -48,41 +48,71 @@ export default function DashboardPage() {
     }
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'resolved': return 'from-green-400 to-green-600'
+      case 'pending': return 'from-yellow-400 to-orange-500'
+      case 'disputed': return 'from-red-400 to-red-600'
+      default: return 'from-gray-400 to-gray-600'
+    }
+  }
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'resolved': return 'Çözüldü'
+      case 'pending': return 'Beklemede'
+      case 'disputed': return 'İtilaflı'
+      default: return status
+    }
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="relative">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+          <div className="absolute inset-0 rounded-full border-t-2 border-purple-600 animate-ping"></div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Modern Header */}
+      <header className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                📊
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-white rounded-full opacity-80"></div>
+                  <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full opacity-80"></div>
+                  <div className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-white rounded-full opacity-80"></div>
+                  <div className="absolute bottom-2 right-2 w-1.5 h-1.5 bg-white rounded-full opacity-80"></div>
+                  <svg className="w-6 h-6 text-white z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">İletigo Dashboard</h1>
+                <h1 className="text-2xl font-bold text-gray-900">İletigo Dashboard</h1>
                 <p className="text-sm text-gray-600">Mutabakat Yönetim Sistemi</p>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-semibold text-gray-900">
                   {user?.first_name} {user?.last_name}
                 </p>
-                <p className="text-xs text-gray-600 capitalize">{user?.role}</p>
+                <p className="text-xs text-indigo-600 capitalize font-medium">{user?.role}</p>
               </div>
               
               <button 
                 onClick={handleLogout}
-                className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition duration-200"
+                className="px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Çıkış Yap
               </button>
@@ -93,166 +123,252 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="p-6">
-        {/* Welcome Card */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Hoş geldiniz, {user?.first_name}!
-          </h2>
-          <p className="text-gray-600">
-            İletigo Mutabakat Yönetim Sistemi'ne başarıyla giriş yaptınız.
-          </p>
+        {/* Welcome Section */}
+        <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl p-8 mb-8 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+          <div className="relative z-10">
+            <h2 className="text-3xl font-bold mb-3">
+              Hoş geldiniz, {user?.first_name}! 👋
+            </h2>
+            <p className="text-white/90 text-lg">
+              Bugün {new Date().toLocaleDateString('tr-TR', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+              })} - Sistemde her şey yolunda
+            </p>
+          </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
+        {/* Enhanced Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="group bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-6 border border-white/20 hover:shadow-2xl transition-all duration-300 hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Toplam Mutabakat</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 mb-1">Toplam Mutabakat</p>
+                <p className="text-3xl font-bold text-gray-900 mb-2">
                   {stats?.totals?.total_reconciliations || 0}
                 </p>
+                <div className="flex items-center text-green-600 text-sm">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17l5-5 5 5M7 7l5 5 5-5" />
+                  </svg>
+                  +12% bu ay
+                </div>
               </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                📊
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="group bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-6 border border-white/20 hover:shadow-2xl transition-all duration-300 hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Aktif Şirketler</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 mb-1">Aktif Şirketler</p>
+                <p className="text-3xl font-bold text-gray-900 mb-2">
                   {stats?.totals?.total_companies || 0}
                 </p>
+                <div className="flex items-center text-green-600 text-sm">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17l5-5 5 5M7 7l5 5 5-5" />
+                  </svg>
+                  +3 yeni şirket
+                </div>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                🏢
+              <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="group bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-6 border border-white/20 hover:shadow-2xl transition-all duration-300 hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Aktif Kullanıcılar</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 mb-1">Aktif Kullanıcılar</p>
+                <p className="text-3xl font-bold text-gray-900 mb-2">
                   {stats?.totals?.total_users || 0}
                 </p>
+                <div className="flex items-center text-blue-600 text-sm">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                  Hepsi online
+                </div>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                👥
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="group bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-6 border border-white/20 hover:shadow-2xl transition-all duration-300 hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Geciken İşler</p>
-                <p className="text-2xl font-bold text-red-600">
+                <p className="text-sm font-medium text-gray-600 mb-1">Geciken İşler</p>
+                <p className="text-3xl font-bold text-red-600 mb-2">
                   {stats?.overdue_count || 0}
                 </p>
+                <div className="flex items-center text-red-600 text-sm">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Acil müdahale
+                </div>
               </div>
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                ⚠️
+              <div className="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Reconciliation Stats */}
-        {stats?.reconciliation_stats && (
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Mutabakat Durumları</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {stats.reconciliation_stats.map((stat: any, index: number) => (
-                <div key={index} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium capitalize">{stat.status}</span>
-                    <span className="text-sm text-gray-600">{stat.count} adet</span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900">
-                    ₺{stat.total_difference.toLocaleString('tr-TR')}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Ortalama: ₺{stat.avg_difference.toLocaleString('tr-TR')}
-                  </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Enhanced Charts Section */}
+          <div className="bg-white/70 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20">
+            <div className="p-6 border-b border-gray-200/50">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Mutabakat Durumları</h3>
+              <p className="text-gray-600 text-sm">Anlık durum analizi</p>
+            </div>
+            <div className="p-6">
+              {stats?.reconciliation_stats && (
+                <div className="space-y-6">
+                  {stats.reconciliation_stats.map((stat: any, index: number) => (
+                    <div key={index} className="relative">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${getStatusColor(stat.status)}`}></div>
+                          <span className="font-semibold text-gray-800">{getStatusText(stat.status)}</span>
+                          <span className="text-sm text-gray-500">({stat.count} adet)</span>
+                        </div>
+                        <span className="font-bold text-gray-900">
+                          ₺{stat.total_difference.toLocaleString('tr-TR')}
+                        </span>
+                      </div>
+                      
+                      {/* Animated Progress Bar */}
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div 
+                          className={`h-3 bg-gradient-to-r ${getStatusColor(stat.status)} rounded-full transition-all duration-1000 ease-out`}
+                          style={{ 
+                            width: `${Math.min((stat.count / 20) * 100, 100)}%`,
+                            animation: 'slideIn 1.5s ease-out'
+                          }}
+                        ></div>
+                      </div>
+                      
+                      <p className="text-xs text-gray-500 mt-2">
+                        Ortalama: ₺{stat.avg_difference.toLocaleString('tr-TR')}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
-        )}
 
-        {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Hızlı İşlemler</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left transition duration-200">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                  📝
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Yeni Mutabakat</p>
-                  <p className="text-sm text-gray-600">Mutabakat kaydı oluştur</p>
-                </div>
+          {/* Activity Feed */}
+          <div className="bg-white/70 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20">
+            <div className="p-6 border-b border-gray-200/50">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Son Aktiviteler</h3>
+              <p className="text-gray-600 text-sm">Sistem etkinlikleri</p>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {[
+                  { action: 'Yeni mutabakat oluşturuldu', user: 'Admin User', time: '2 dakika önce', type: 'create' },
+                  { action: 'Şirket bilgileri güncellendi', user: 'Manager', time: '15 dakika önce', type: 'update' },
+                  { action: 'Rapor dışa aktarıldı', user: 'Admin User', time: '1 saat önce', type: 'export' },
+                  { action: 'Yeni kullanıcı eklendi', user: 'Admin User', time: '2 saat önce', type: 'create' },
+                ].map((activity, index) => (
+                  <div key={index} className="flex items-start space-x-4 p-3 rounded-xl hover:bg-white/50 transition-all duration-200">
+                    <div className={`w-3 h-3 rounded-full mt-2 ${
+                      activity.type === 'create' ? 'bg-green-400' :
+                      activity.type === 'update' ? 'bg-blue-400' :
+                      'bg-purple-400'
+                    } animate-pulse`}></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                      <p className="text-xs text-gray-600">{activity.user} • {activity.time}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </button>
-            
-            <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left transition duration-200">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                  🏢
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Quick Actions */}
+        <div className="bg-white/70 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 mb-8">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">Hızlı İşlemler</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { title: 'Yeni Mutabakat', desc: 'Mutabakat kaydı oluştur', icon: '📝', color: 'from-indigo-400 to-indigo-600' },
+              { title: 'Şirket Ekle', desc: 'Yeni şirket kaydı', icon: '🏢', color: 'from-green-400 to-green-600' },
+              { title: 'Raporlar', desc: 'Detaylı analiz', icon: '📈', color: 'from-purple-400 to-purple-600' },
+            ].map((action, index) => (
+              <button key={index} className="group p-6 border border-gray-200/50 rounded-2xl hover:bg-white/80 text-left transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                <div className="flex items-center space-x-4">
+                  <div className={`w-14 h-14 bg-gradient-to-br ${action.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 text-2xl`}>
+                    {action.icon}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors duration-200">{action.title}</p>
+                    <p className="text-sm text-gray-600">{action.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-900">Şirket Ekle</p>
-                  <p className="text-sm text-gray-600">Yeni şirket kaydı</p>
-                </div>
-              </div>
-            </button>
-            
-            <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left transition duration-200">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  📈
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Raporlar</p>
-                  <p className="text-sm text-gray-600">Detaylı analiz</p>
-                </div>
-              </div>
-            </button>
+              </button>
+            ))}
           </div>
         </div>
 
         {/* System Status */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-green-900 mb-2">✅ Sistem Aktif</h3>
-          <p className="text-green-700 mb-4">
-            Tüm sistem bileşenleri çalışır durumda. Demo veriler görüntüleniyor.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div className="flex items-center space-x-2">
-              <span className="text-green-600">✅</span>
-              <span className="text-green-700">API Endpoints</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-green-600">✅</span>
-              <span className="text-green-700">Authentication</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-green-600">✅</span>
-              <span className="text-green-700">Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-yellow-600">⚠️</span>
-              <span className="text-green-700">PostgreSQL Hazır</span>
+        <div className="bg-gradient-to-r from-green-400 to-blue-500 rounded-3xl shadow-2xl p-6 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+          <div className="relative z-10">
+            <h3 className="text-xl font-bold mb-4 flex items-center">
+              <div className="w-3 h-3 bg-green-300 rounded-full mr-3 animate-pulse"></div>
+              Sistem Durumu - Aktif
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'API Endpoints', status: '✅', detail: '100% uptime' },
+                { label: 'Authentication', status: '✅', detail: 'Güvenli' },
+                { label: 'Dashboard', status: '✅', detail: 'Yüklendi' },
+                { label: 'Database', status: '⚠️', detail: 'Hazır' },
+              ].map((item, index) => (
+                <div key={index} className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span>{item.status}</span>
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </div>
+                  <p className="text-xs text-white/80">{item.detail}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </main>
+
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            width: 0%;
+          }
+          to {
+            width: var(--target-width);
+          }
+        }
+      `}</style>
     </div>
   )
 }

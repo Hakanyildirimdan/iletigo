@@ -15,30 +15,33 @@ export default function LoginPage() {
     setIsLoading(true)
     setError('')
     
-    // Demo login - sadece doğru bilgilerle giriş
-    if (email === 'admin@iletigo.com' && password === 'admin123') {
-      const demoUser = {
-        id: 1,
-        email: 'admin@iletigo.com',
-        first_name: 'Admin',
-        last_name: 'User',
-        role: 'admin',
-        department: 'IT'
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Giriş başarısız')
       }
       
-      localStorage.setItem('token', 'demo-token-' + Date.now())
-      localStorage.setItem('user', JSON.stringify(demoUser))
+      // Store token and user data
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
       
-      setTimeout(() => {
-        setIsLoading(false)
-        router.push('/dashboard')
-      }, 1000)
+      // Redirect to dashboard
+      router.push('/dashboard')
       
-    } else {
-      setTimeout(() => {
-        setError('E-posta veya şifre hatalı. Demo: admin@iletigo.com / admin123')
-        setIsLoading(false)
-      }, 1000)
+    } catch (error) {
+      console.error('Login error:', error)
+      setError(error instanceof Error ? error.message : 'Bir hata oluştu')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -134,7 +137,7 @@ export default function LoginPage() {
         </div>
 
         <div className="text-center">
-          <p className="text-xs text-gray-500">İletigo v1.0.0 - Demo Mode</p>
+          <p className="text-xs text-gray-500">İletigo v1.0.0 - API Çalışıyor</p>
         </div>
       </div>
     </div>

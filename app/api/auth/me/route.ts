@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get user error:', error)
     return NextResponse.json(
-      { error: 'Sunucu hatası' },
+      { error: 'Server error' },
       { status: 500 }
     )
   }

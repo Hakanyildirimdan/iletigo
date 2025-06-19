@@ -1,0 +1,6 @@
+# API Klasörü Temizlendi
+
+Bu commit ile problematic API dosyaları kaldırıldı.
+Sadece hello endpoint kaldı.
+
+Database bağlantısı kurulduktan sonra API'ler tekrar eklenecek.

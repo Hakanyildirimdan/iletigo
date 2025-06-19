@@ -1,23 +1,48 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError('')
     
-    // Simulated login process
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Giriş başarısız')
+      }
+      
+      // Store token in localStorage
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      
+      // Redirect to dashboard
+      router.push('/dashboard')
+      
+    } catch (error) {
+      console.error('Login error:', error)
+      setError(error instanceof Error ? error.message : 'Bir hata oluştu')
+    } finally {
       setIsLoading(false)
-      console.log('Login attempt:', { email, password })
-      // Buraya gerçek authentication logic gelecek
-      alert('Giriş başarılı! (Demo)')
-    }, 1500)
+    }
   }
 
   return (
@@ -51,6 +76,13 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">İletigo</h1>
             <p className="text-gray-600">Mutabakat Yönetim Sistemi</p>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -129,6 +161,13 @@ export default function LoginPage() {
                 Kayıt olun
               </a>
             </p>
+          </div>
+          
+          {/* Demo Login Info */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-600 font-medium mb-1">Demo Giriş Bilgileri:</p>
+            <p className="text-xs text-blue-600">E-posta: admin@iletigo.com</p>
+            <p className="text-xs text-blue-600">Şifre: admin123</p>
           </div>
         </div>
 

@@ -15,33 +15,30 @@ export default function LoginPage() {
     setIsLoading(true)
     setError('')
     
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-      
-      const data = await response.json()
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Giriş başarısız')
+    // Demo login - sadece doğru bilgilerle giriş
+    if (email === 'admin@iletigo.com' && password === 'admin123') {
+      const demoUser = {
+        id: 1,
+        email: 'admin@iletigo.com',
+        first_name: 'Admin',
+        last_name: 'User',
+        role: 'admin',
+        department: 'IT'
       }
       
-      // Store token in localStorage
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+      localStorage.setItem('token', 'demo-token-' + Date.now())
+      localStorage.setItem('user', JSON.stringify(demoUser))
       
-      // Redirect to dashboard
-      router.push('/dashboard')
+      setTimeout(() => {
+        setIsLoading(false)
+        router.push('/dashboard')
+      }, 1000)
       
-    } catch (error) {
-      console.error('Login error:', error)
-      setError(error instanceof Error ? error.message : 'Bir hata oluştu')
-    } finally {
-      setIsLoading(false)
+    } else {
+      setTimeout(() => {
+        setError('E-posta veya şifre hatalı. Demo: admin@iletigo.com / admin123')
+        setIsLoading(false)
+      }, 1000)
     }
   }
 
@@ -52,13 +49,11 @@ export default function LoginPage() {
           {/* Logo and Title */}
           <div className="text-center mb-8">
             <div className="mx-auto w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg relative">
-              {/* Network dots - logonuzdaki noktalara benzer */}
               <div className="absolute top-3 left-3 w-2 h-2 bg-white rounded-full opacity-80"></div>
               <div className="absolute top-3 right-3 w-2 h-2 bg-white rounded-full opacity-80"></div>
               <div className="absolute bottom-3 left-3 w-2 h-2 bg-white rounded-full opacity-80"></div>
               <div className="absolute bottom-3 right-3 w-2 h-2 bg-white rounded-full opacity-80"></div>
               
-              {/* Mail/envelope icon */}
               <svg 
                 className="w-10 h-10 text-white z-10" 
                 fill="none" 
@@ -77,14 +72,12 @@ export default function LoginPage() {
             <p className="text-gray-600">Mutabakat Yönetim Sistemi</p>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-600 text-sm">{error}</p>
             </div>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -98,7 +91,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
-                placeholder="ornek@email.com"
+                placeholder="admin@iletigo.com"
               />
             </div>
 
@@ -114,28 +107,8 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
-                placeholder="••••••••"
+                placeholder="admin123"
               />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Beni hatırla
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <a href="#" className="text-indigo-600 hover:text-indigo-500 transition duration-200">
-                  Şifremi unuttum
-                </a>
-              </div>
             </div>
 
             <button
@@ -153,17 +126,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Hesabınız yok mu?{' '}
-              <a href="#" className="text-indigo-600 hover:text-indigo-500 font-medium transition duration-200">
-                Kayıt olun
-              </a>
-            </p>
-          </div>
-          
-          {/* Demo Login Info */}
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-xs text-blue-600 font-medium mb-1">Demo Giriş Bilgileri:</p>
             <p className="text-xs text-blue-600">E-posta: admin@iletigo.com</p>
@@ -171,9 +133,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Version Info */}
         <div className="text-center">
-          <p className="text-xs text-gray-500">İletigo v1.0.0</p>
+          <p className="text-xs text-gray-500">İletigo v1.0.0 - Demo Mode</p>
         </div>
       </div>
     </div>

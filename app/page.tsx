@@ -94,7 +94,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
-                placeholder="admin@iletigo.com"
+                placeholder="E-posta adresinizi giriniz"
               />
             </div>
 
@@ -110,8 +110,28 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition duration-200"
-                placeholder="admin123"
+                placeholder="Şifrenizi giriniz"
               />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                  Beni hatırla
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <a href="#" className="text-indigo-600 hover:text-indigo-500 transition duration-200">
+                  Şifremi unuttum
+                </a>
+              </div>
             </div>
 
             <button
@@ -129,15 +149,18 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-600 font-medium mb-1">Demo Giriş Bilgileri:</p>
-            <p className="text-xs text-blue-600">E-posta: admin@iletigo.com</p>
-            <p className="text-xs text-blue-600">Şifre: admin123</p>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Hesabınız yok mu?{' '}
+              <a href="#" className="text-indigo-600 hover:text-indigo-500 font-medium transition duration-200">
+                Kayıt olun
+              </a>
+            </p>
           </div>
         </div>
 
         <div className="text-center">
-          <p className="text-xs text-gray-500">İletigo v1.0.0 - API Çalışıyor</p>
+          <p className="text-xs text-gray-500">İletigo v1.0.0</p>
         </div>
       </div>
     </div>

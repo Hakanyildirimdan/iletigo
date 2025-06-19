@@ -1,68 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserFromRequest } from '@/lib/auth'
-import { query } from '@/lib/db'
 
+// Demo dashboard stats endpoint
 export async function GET(request: NextRequest) {
   try {
-    const user = await getUserFromRequest(request)
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Yetkisiz erişim' },
-        { status: 401 }
-      )
-    }
-    
-    // Get reconciliation statistics
-    const statsResult = await query(`
-      SELECT 
-        status,
-        COUNT(*) as count,
-        COALESCE(SUM(ABS(difference)), 0) as total_difference,
-        COALESCE(AVG(ABS(difference)), 0) as avg_difference
-      FROM reconciliations 
-      GROUP BY status
-    `)
-    
-    // Get total counts
-    const totalCountsResult = await query(`
-      SELECT 
-        (SELECT COUNT(*) FROM reconciliations) as total_reconciliations,
-        (SELECT COUNT(*) FROM companies WHERE is_active = true) as total_companies,
-        (SELECT COUNT(*) FROM users WHERE is_active = true) as total_users,
-        (SELECT COUNT(*) FROM reconciliation_periods WHERE status = 'active') as active_periods
-    `)
-    
-    // Get recent activity
-    const recentActivityResult = await query(`
-      SELECT 
-        al.action,
-        al.table_name,
-        al.created_at,
-        u.first_name || ' ' || u.last_name as user_name
-      FROM activity_logs al
-      LEFT JOIN users u ON al.user_id = u.id
-      ORDER BY al.created_at DESC
-      LIMIT 10
-    `)
-    
-    // Get overdue reconciliations
-    const overdueResult = await query(`
-      SELECT COUNT(*) as overdue_count
-      FROM reconciliations 
-      WHERE due_date < CURRENT_DATE 
-      AND status NOT IN ('resolved', 'cancelled')
-    `)
-    
+    // Demo statistics
     const stats = {
-      reconciliation_stats: statsResult.rows,
-      totals: totalCountsResult.rows[0],
-      recent_activity: recentActivityResult.rows,
-      overdue_count: overdueResult.rows[0].overdue_count
+      reconciliation_stats: [
+        { status: 'pending', count: 5, total_difference: 15000, avg_difference: 3000 },
+        { status: 'resolved', count: 12, total_difference: 8000, avg_difference: 667 },
+        { status: 'disputed', count: 2, total_difference: 5000, avg_difference: 2500 }
+      ],
+      totals: {
+        total_reconciliations: 19,
+        total_companies: 8,
+        total_users: 3,
+        active_periods: 1
+      },
+      recent_activity: [
+        {
+          action: 'login',
+          table_name: 'users',
+          created_at: new Date().toISOString(),
+          user_name: 'Admin User'
+        }
+      ],
+      overdue_count: 3
     }
     
     return NextResponse.json(stats)
-    
   } catch (error) {
     console.error('Dashboard stats error:', error)
     return NextResponse.json(

@@ -17,6 +17,7 @@ export default function NewReconciliationPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [companyLoading, setCompanyLoading] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
   const [formData, setFormData] = useState({
     company_code: '',
     company_name: '',
@@ -116,6 +117,7 @@ export default function NewReconciliationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setSuccessMessage('')
 
     try {
       const response = await fetch('/api/reconciliations', {
@@ -127,13 +129,22 @@ export default function NewReconciliationPage() {
         body: JSON.stringify(formData)
       })
 
+      const responseData = await response.json()
+
       if (response.ok) {
-        router.push('/dashboard/reconciliations')
+        setSuccessMessage(`✅ ${responseData.message} - Referans: ${responseData.data.reference_number}`)
+        
+        // 3 saniye sonra yönlendir
+        setTimeout(() => {
+          router.push('/dashboard/reconciliations')
+        }, 3000)
       } else {
-        console.error('Mutabakat oluşturulurken hata oluştu')
+        console.error('Mutabakat oluşturulurken hata oluştu:', responseData.error)
+        alert(`Hata: ${responseData.error}`)
       }
     } catch (error) {
       console.error('Error creating reconciliation:', error)
+      alert('Bir hata oluştu. Lütfen tekrar deneyin.')
     } finally {
       setLoading(false)
     }
@@ -158,6 +169,23 @@ export default function NewReconciliationPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Success Message */}
+      {successMessage && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-green-800">{successMessage}</p>
+              <p className="text-xs text-green-600 mt-1">Mutabakatlar sayfasına yönlendiriliyorsunuz...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20 p-6">
         <div className="flex items-center justify-between">

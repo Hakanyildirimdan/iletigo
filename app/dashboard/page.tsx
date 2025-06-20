@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null)
@@ -241,7 +242,7 @@ export default function DashboardPage() {
             { title: 'Şirket Ekle', desc: 'Yeni şirket kaydı', icon: '🏢', color: 'from-green-400 to-green-600', href: '/dashboard/companies/new' },
             { title: 'Raporlar', desc: 'Detaylı analiz', icon: '📈', color: 'from-purple-400 to-purple-600', href: '/dashboard/reports' },
           ].map((action, index) => (
-            <button key={index} className="group p-4 sm:p-6 border border-gray-200/50 rounded-xl sm:rounded-2xl hover:bg-white/80 text-left transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <Link key={index} href={action.href} className="group p-4 sm:p-6 border border-gray-200/50 rounded-xl sm:rounded-2xl hover:bg-white/80 text-left transition-all duration-300 hover:scale-105 hover:shadow-xl block">
               <div className="flex items-center space-x-3 sm:space-x-4">
                 <div className={`w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br ${action.color} rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 text-lg sm:text-xl lg:text-2xl`}>
                   {action.icon}
@@ -251,7 +252,7 @@ export default function DashboardPage() {
                   <p className="text-xs sm:text-sm text-gray-600 truncate">{action.desc}</p>
                 </div>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </div>

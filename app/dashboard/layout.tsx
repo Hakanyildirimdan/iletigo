@@ -42,6 +42,7 @@ export default function DashboardLayout({
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Mutabakatlar', href: '/dashboard/reconciliations', icon: '📋' },
+    { name: 'Yeni Mutabakat', href: '/dashboard/reconciliations/new', icon: '📝' },
     { name: 'Şirketler', href: '/dashboard/companies', icon: '🏢' },
     { name: 'Kullanıcılar', href: '/dashboard/users', icon: '👥' },
     { name: 'Raporlar', href: '/dashboard/reports', icon: '📈' },
@@ -93,7 +94,7 @@ export default function DashboardLayout({
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 mt-8 px-4">
+          <nav className="flex-1 mt-8 px-4 overflow-y-auto">
             <div className="space-y-2">
               {navigation.map((item) => {
                 const isActive = pathname === item.href

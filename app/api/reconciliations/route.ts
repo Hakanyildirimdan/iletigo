@@ -7,6 +7,7 @@ const demoReconciliations = [
     reference_number: 'MUT-2024-001',
     title: 'Ocak Ayi Satis Mutabakati',
     company_name: 'ABC Sirket Ltd.',
+    company_code: 'ABC123',
     our_amount: 15000.00,
     their_amount: 14800.00,
     difference: 200.00,
@@ -16,13 +17,24 @@ const demoReconciliations = [
     due_date: '2024-02-15',
     assigned_to: 'Admin User',
     created_at: '2024-01-15T10:30:00Z',
-    updated_at: '2024-01-20T14:20:00Z'
+    updated_at: '2024-01-20T14:20:00Z',
+    reconciliation_date: '2024-01-15',
+    year: 2024,
+    month: 1,
+    email: 'info@abcsirket.com',
+    phone: '0212 123 45 67',
+    type: 'mutabakat',
+    debt_credit: 'borc',
+    is_active: true,
+    mail_status: 'not_sent',
+    approval_token: null
   },
   {
     id: 2,
     reference_number: 'MUT-2024-002',
     title: 'Subat Ayi Alim Mutabakati',
     company_name: 'XYZ Corp A.S.',
+    company_code: 'XYZ001',
     our_amount: 25000.00,
     their_amount: 25000.00,
     difference: 0.00,
@@ -32,13 +44,24 @@ const demoReconciliations = [
     due_date: '2024-03-15',
     assigned_to: 'Manager User',
     created_at: '2024-02-01T09:15:00Z',
-    updated_at: '2024-02-10T16:45:00Z'
+    updated_at: '2024-02-10T16:45:00Z',
+    reconciliation_date: '2024-02-01',
+    year: 2024,
+    month: 2,
+    email: 'contact@xyzcorp.com',
+    phone: '0212 987 65 43',
+    type: 'mutabakat',
+    debt_credit: 'alacak',
+    is_active: true,
+    mail_status: 'approved',
+    approval_token: 'abc123token'
   },
   {
     id: 3,
     reference_number: 'MUT-2024-003',
     title: 'Mart Ayi Hizmet Mutabakati',
     company_name: 'DEF Teknoloji Ltd.',
+    company_code: 'DEF-500',
     our_amount: 8500.00,
     their_amount: 9200.00,
     difference: -700.00,
@@ -48,13 +71,24 @@ const demoReconciliations = [
     due_date: '2024-04-10',
     assigned_to: 'Admin User',
     created_at: '2024-03-05T11:20:00Z',
-    updated_at: '2024-03-12T13:30:00Z'
+    updated_at: '2024-03-12T13:30:00Z',
+    reconciliation_date: '2024-03-05',
+    year: 2024,
+    month: 3,
+    email: 'bilgi@deftek.com',
+    phone: '0216 555 11 22',
+    type: 'bilgilendirme',
+    debt_credit: 'borc',
+    is_active: false,
+    mail_status: 'rejected',
+    approval_token: 'def456token'
   },
   {
     id: 4,
     reference_number: 'MUT-2024-004',
     title: 'Nisan Ayi Urun Satis Mutabakati',
     company_name: 'GHI Insaat A.S.',
+    company_code: 'GHI999',
     our_amount: 35000.00,
     their_amount: 34500.00,
     difference: 500.00,
@@ -64,39 +98,44 @@ const demoReconciliations = [
     due_date: '2024-05-15',
     assigned_to: 'User Staff',
     created_at: '2024-04-02T08:45:00Z',
-    updated_at: '2024-04-08T10:15:00Z'
+    updated_at: '2024-04-08T10:15:00Z',
+    reconciliation_date: '2024-04-02',
+    year: 2024,
+    month: 4,
+    email: 'info@ghiinsaat.com',
+    phone: '0312 444 55 66',
+    type: 'mutabakat',
+    debt_credit: 'alacak',
+    is_active: true,
+    mail_status: 'sent',
+    approval_token: 'ghi789token'
   },
   {
     id: 5,
-    reference_number: 'MUT-2024-005',
-    title: 'Mayis Ayi Danismanlik Mutabakati',
+    reference_number: 'MUT-2025-005',
+    title: 'Ocak Ayi Danismanlik Mutabakati',
     company_name: 'JKL Consulting Ltd.',
+    company_code: 'JKL-CONS',
     our_amount: 12000.00,
     their_amount: 12000.00,
     difference: 0.00,
     currency: 'TRY',
     status: 'resolved',
     priority: 'low',
-    due_date: '2024-06-20',
+    due_date: '2025-02-20',
     assigned_to: 'Manager User',
-    created_at: '2024-05-01T14:10:00Z',
-    updated_at: '2024-05-15T09:25:00Z'
-  },
-  {
-    id: 6,
-    reference_number: 'MUT-2024-006',
-    title: 'Haziran Ayi Lojistik Mutabakati',
-    company_name: 'MNO Lojistik A.S.',
-    our_amount: 18500.00,
-    their_amount: 17900.00,
-    difference: 600.00,
-    currency: 'TRY',
-    status: 'pending',
-    priority: 'high',
-    due_date: '2024-07-10',
-    assigned_to: 'Admin User',
-    created_at: '2024-06-03T16:30:00Z',
-    updated_at: '2024-06-18T11:40:00Z'
+    created_at: '2025-01-01T14:10:00Z',
+    updated_at: '2025-01-15T09:25:00Z',
+    reconciliation_date: '2025-01-01',
+    year: 2025,
+    month: 1,
+    email: 'hello@jklcons.com',
+    phone: '0216 777 88 99',
+    type: 'cari_bakiye_hatirlatma',
+    debt_credit: 'borc',
+    is_active: true,
+    mail_status: 'not_sent',
+    approval_token: null
   }
 ]
 
@@ -128,14 +167,32 @@ let demoCompanies = [
     email: 'bilgi@deftek.com',
     phone: '0216 555 11 22',
     mobile_phone: '0533 555 11 22'
+  },
+  {
+    id: 4,
+    code: 'GHI999',
+    name: 'GHI İnşaat A.Ş.',
+    contact_person: 'Fatma Özkan',
+    email: 'info@ghiinsaat.com',
+    phone: '0312 444 55 66',
+    mobile_phone: '0544 444 55 66'
+  },
+  {
+    id: 5,
+    code: 'JKL-CONS',
+    name: 'JKL Consulting Ltd.',
+    contact_person: 'Ahmet Kaya',
+    email: 'hello@jklcons.com',
+    phone: '0216 777 88 99',
+    mobile_phone: '0532 777 88 99'
   }
 ]
 
 // In-memory storage for new data
 let reconciliationsStorage = [...demoReconciliations]
 let companiesStorage = [...demoCompanies]
-let nextReconciliationId = 7
-let nextCompanyId = 4
+let nextReconciliationId = 8
+let nextCompanyId = 6
 
 export async function GET(request: NextRequest) {
   try {
@@ -145,6 +202,13 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const priority = searchParams.get('priority')
     const search = searchParams.get('search')
+    const company_code = searchParams.get('company_code')
+    const year = searchParams.get('year')
+    const month = searchParams.get('month')
+    const date_from = searchParams.get('date_from')
+    const date_to = searchParams.get('date_to')
+    const mail_status = searchParams.get('mail_status')
+    const is_active = searchParams.get('is_active')
     
     let filteredData = [...reconciliationsStorage]
     
@@ -157,6 +221,47 @@ export async function GET(request: NextRequest) {
     if (priority && priority !== 'all') {
       filteredData = filteredData.filter(item => item.priority === priority)
     }
+
+    // Filter by company code
+    if (company_code) {
+      filteredData = filteredData.filter(item => 
+        item.company_code?.toLowerCase().includes(company_code.toLowerCase())
+      )
+    }
+
+    // Filter by year
+    if (year) {
+      filteredData = filteredData.filter(item => item.year === parseInt(year))
+    }
+
+    // Filter by month
+    if (month) {
+      filteredData = filteredData.filter(item => item.month === parseInt(month))
+    }
+
+    // Filter by date range
+    if (date_from) {
+      filteredData = filteredData.filter(item => 
+        new Date(item.reconciliation_date) >= new Date(date_from)
+      )
+    }
+
+    if (date_to) {
+      filteredData = filteredData.filter(item => 
+        new Date(item.reconciliation_date) <= new Date(date_to)
+      )
+    }
+
+    // Filter by mail status
+    if (mail_status && mail_status !== 'all') {
+      filteredData = filteredData.filter(item => item.mail_status === mail_status)
+    }
+
+    // Filter by active status
+    if (is_active && is_active !== 'all') {
+      const activeFilter = is_active === 'true'
+      filteredData = filteredData.filter(item => item.is_active === activeFilter)
+    }
     
     // Search filter
     if (search) {
@@ -164,7 +269,8 @@ export async function GET(request: NextRequest) {
       filteredData = filteredData.filter(item => 
         item.title.toLowerCase().includes(searchLower) ||
         item.company_name.toLowerCase().includes(searchLower) ||
-        item.reference_number.toLowerCase().includes(searchLower)
+        item.reference_number.toLowerCase().includes(searchLower) ||
+        item.company_code?.toLowerCase().includes(searchLower)
       )
     }
     
@@ -184,7 +290,14 @@ export async function GET(request: NextRequest) {
       filters: {
         status,
         priority,
-        search
+        search,
+        company_code,
+        year,
+        month,
+        date_from,
+        date_to,
+        mail_status,
+        is_active
       }
     })
     
@@ -265,6 +378,9 @@ export async function POST(request: NextRequest) {
       phone: body.phone,
       mobile_phone: body.mobile_phone || '',
       assigned_to: 'Admin User', // This would come from auth in real app
+      is_active: true,
+      mail_status: 'not_sent',
+      approval_token: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }

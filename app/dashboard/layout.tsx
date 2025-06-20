@@ -139,7 +139,7 @@ export default function DashboardLayout({
       </div>
 
       {/* Mobile Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/95 backdrop-blur-lg shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white/95 backdrop-blur-lg shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden ${
         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex flex-col h-full">
@@ -155,6 +155,7 @@ export default function DashboardLayout({
               </div>
               <div className="ml-3">
                 <h1 className="text-lg font-bold text-gray-900">İletigo</h1>
+                <p className="text-xs text-gray-600">Mutabakat Sistemi</p>
               </div>
             </div>
             <button
@@ -168,7 +169,7 @@ export default function DashboardLayout({
           </div>
 
           {/* Mobile Navigation */}
-          <nav className="flex-1 mt-6 px-4">
+          <nav className="flex-1 mt-6 px-4 overflow-y-auto">
             <div className="space-y-2">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
@@ -197,8 +198,8 @@ export default function DashboardLayout({
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                 {user?.first_name?.[0]}{user?.last_name?.[0]}
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
                   {user?.first_name} {user?.last_name}
                 </p>
                 <p className="text-xs text-gray-600 capitalize">{user?.role}</p>
@@ -217,12 +218,12 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="lg:pl-64">
         {/* Mobile Top Header */}
-        <header className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20 px-4 py-4 lg:px-6">
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20 px-4 py-3 lg:px-6 lg:py-4">
           <div className="flex items-center justify-between">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors duration-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -231,10 +232,10 @@ export default function DashboardLayout({
 
             {/* Page Title */}
             <div className="flex-1 lg:flex-none ml-4 lg:ml-0">
-              <h2 className="text-xl lg:text-2xl font-bold text-gray-900">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
                 {navigation.find(item => item.href === pathname)?.name || 'Dashboard'}
               </h2>
-              <p className="text-sm text-gray-600 hidden lg:block">
+              <p className="text-sm text-gray-600 hidden sm:block">
                 Hoş geldiniz, {user?.first_name}
               </p>
             </div>
@@ -260,7 +261,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content */}
-        <main className="p-4 lg:p-6">
+        <main className="p-3 sm:p-4 lg:p-6">
           {children}
         </main>
       </div>

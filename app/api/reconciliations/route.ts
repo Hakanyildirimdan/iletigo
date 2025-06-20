@@ -100,6 +100,43 @@ const demoReconciliations = [
   }
 ]
 
+// Demo companies data
+let demoCompanies = [
+  {
+    id: 1,
+    code: 'ABC123',
+    name: 'ABC Şirket Ltd.',
+    contact_person: 'Ali Veli',
+    email: 'info@abcsirket.com',
+    phone: '0212 123 45 67',
+    mobile_phone: '0555 123 45 67'
+  },
+  {
+    id: 2,
+    code: 'XYZ001',
+    name: 'XYZ Corp A.Ş.',
+    contact_person: 'Mehmet Yılmaz',
+    email: 'contact@xyzcorp.com',
+    phone: '0212 987 65 43',
+    mobile_phone: '0555 987 65 43'
+  },
+  {
+    id: 3,
+    code: 'DEF-500',
+    name: 'DEF Teknoloji Ltd.',
+    contact_person: 'Ayşe Demir',
+    email: 'bilgi@deftek.com',
+    phone: '0216 555 11 22',
+    mobile_phone: '0533 555 11 22'
+  }
+]
+
+// In-memory storage for new data
+let reconciliationsStorage = [...demoReconciliations]
+let companiesStorage = [...demoCompanies]
+let nextReconciliationId = 7
+let nextCompanyId = 4
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -109,7 +146,7 @@ export async function GET(request: NextRequest) {
     const priority = searchParams.get('priority')
     const search = searchParams.get('search')
     
-    let filteredData = [...demoReconciliations]
+    let filteredData = [...reconciliationsStorage]
     
     // Filter by status
     if (status && status !== 'all') {
@@ -155,6 +192,97 @@ export async function GET(request: NextRequest) {
     console.error('Reconciliations API error:', error)
     return NextResponse.json(
       { error: 'Server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    
+    // Validate required fields
+    const requiredFields = ['company_code', 'company_name', 'email', 'phone', 'type', 'debt_credit', 'amount', 'reconciliation_date']
+    for (const field of requiredFields) {
+      if (!body[field]) {
+        return NextResponse.json(
+          { error: `${field} is required` },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Check if company exists, if not create it
+    let company = companiesStorage.find(c => c.code === body.company_code.toUpperCase())
+    
+    if (!company) {
+      // Create new company
+      company = {
+        id: nextCompanyId++,
+        code: body.company_code.toUpperCase(),
+        name: body.company_name,
+        contact_person: body.contact_person || '',
+        email: body.email,
+        phone: body.phone,
+        mobile_phone: body.mobile_phone || ''
+      }
+      companiesStorage.push(company)
+    } else {
+      // Update existing company with new information
+      company.name = body.company_name
+      company.contact_person = body.contact_person || company.contact_person
+      company.email = body.email
+      company.phone = body.phone
+      company.mobile_phone = body.mobile_phone || company.mobile_phone
+    }
+
+    // Generate reference number
+    const year = new Date().getFullYear()
+    const referenceNumber = `MUT-${year}-${String(nextReconciliationId).padStart(3, '0')}`
+
+    // Create reconciliation record
+    const newReconciliation = {
+      id: nextReconciliationId++,
+      reference_number: referenceNumber,
+      title: `${body.company_name} - ${body.type} (${body.debt_credit})`,
+      company_name: body.company_name,
+      company_code: body.company_code.toUpperCase(),
+      our_amount: parseFloat(body.amount),
+      their_amount: 0, // Will be filled later during reconciliation process
+      difference: parseFloat(body.amount), // Initially equals our amount
+      currency: 'TRY',
+      status: 'pending',
+      priority: body.amount > 50000 ? 'high' : body.amount > 20000 ? 'medium' : 'low',
+      type: body.type,
+      debt_credit: body.debt_credit,
+      due_date: body.due_date || null,
+      reconciliation_date: body.reconciliation_date,
+      year: body.year,
+      month: body.month,
+      description: body.description || '',
+      contact_person: body.contact_person || '',
+      email: body.email,
+      phone: body.phone,
+      mobile_phone: body.mobile_phone || '',
+      assigned_to: 'Admin User', // This would come from auth in real app
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
+    // Add to storage
+    reconciliationsStorage.push(newReconciliation)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Mutabakat başarıyla oluşturuldu',
+      data: newReconciliation,
+      company: company
+    }, { status: 201 })
+
+  } catch (error) {
+    console.error('POST Reconciliation error:', error)
+    return NextResponse.json(
+      { error: 'Mutabakat oluşturulurken hata oluştu' },
       { status: 500 }
     )
   }

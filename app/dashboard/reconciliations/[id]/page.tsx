@@ -169,15 +169,14 @@ export default function ReconciliationDetailPage() {
         throw new Error('PDF oluşturulamadı');
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `mutabakat_${reconciliation?.reference_number}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
+      const htmlContent = await response.text();
+      
+      // Open HTML content in new window for PDF generation
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'PDF oluşturma hatası');
     }

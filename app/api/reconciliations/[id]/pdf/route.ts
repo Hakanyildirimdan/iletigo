@@ -56,8 +56,8 @@ export async function POST(
     `;
     const detailsResult = await query(detailsQuery, [id]);
 
-    // Generate HTML content for client-side PDF generation
-    const htmlContent = generatePDFHTML(reconciliation, detailsResult.rows);
+    // Generate simple HTML content
+    const htmlContent = generatePrintableHTML(reconciliation, detailsResult.rows);
 
     // Log activity
     const activityQuery = `
@@ -65,7 +65,6 @@ export async function POST(
       VALUES ($1, $2, $3, $4, $5)
     `;
     
-    // Note: In a real app, you'd get user_id from the JWT token
     const userId = 1; // Placeholder
     
     await query(activityQuery, [
@@ -76,11 +75,10 @@ export async function POST(
       JSON.stringify({ reference_number: reconciliation.reference_number })
     ]);
 
-    // Return HTML for client-side PDF generation
     return new NextResponse(htmlContent, {
       headers: {
-        'Content-Type': 'text/html',
-        'X-PDF-Filename': `mutabakat_${reconciliation.reference_number}.pdf`
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Disposition': `inline; filename="mutabakat_${reconciliation.reference_number}.html"`
       }
     });
 
@@ -93,28 +91,44 @@ export async function POST(
   }
 }
 
-function generatePDFHTML(reconciliation: any, details: any[]) {
+function generatePrintableHTML(reconciliation: any, details: any[]) {
   const currentDate = new Date().toLocaleDateString('tr-TR');
   
   return `
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mutabakat Raporu - ${reconciliation.reference_number}</title>
     <style>
         @media print {
-            @page { margin: 20mm; }
+            @page { 
+                margin: 20mm; 
+                size: A4;
+            }
             body { -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+        }
+        
+        * {
+            box-sizing: border-box;
         }
         
         body { 
-            font-family: 'Arial', sans-serif; 
+            font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 20px;
             font-size: 12px;
             line-height: 1.4;
             color: #333;
+            background: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
         }
         
         .header { 
@@ -137,10 +151,6 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
             font-size: 16px;
         }
         
-        .company-info { 
-            margin-bottom: 20px; 
-        }
-        
         .info-table { 
             width: 100%; 
             border-collapse: collapse; 
@@ -161,17 +171,16 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
         }
         
         .amount-summary { 
-            display: flex; 
-            justify-content: space-between; 
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
             margin-bottom: 20px; 
-            gap: 10px;
         }
         
         .amount-box { 
             border: 2px solid #ddd; 
             padding: 15px; 
             text-align: center; 
-            flex: 1;
             border-radius: 5px;
         }
         
@@ -187,7 +196,6 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
             font-weight: bold;
         }
         
-        .amount-box.positive h2 { color: #28a745; }
         .amount-box.negative h2 { color: #dc3545; }
         .amount-box.neutral h2 { color: #6c757d; }
         
@@ -215,15 +223,14 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
         
         .signature-section { 
             margin-top: 50px; 
-            display: flex; 
-            justify-content: space-between; 
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
         
         .signature-box { 
             border: 1px solid #ddd; 
             padding: 20px; 
-            flex: 1; 
             text-align: center; 
             min-height: 100px;
             border-radius: 5px;
@@ -267,36 +274,35 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
         .status-resolved { background-color: #d1ecf1; color: #0c5460; }
         .status-cancelled { background-color: #e2e3e5; color: #383d41; }
         
-        .pdf-actions {
+        .print-button {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: white;
-            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
             border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             z-index: 1000;
         }
         
-        @media print {
-            .pdf-actions { display: none; }
+        .print-button:hover {
+            background: #0056b3;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-    <div class="pdf-actions">
-        <button onclick="generatePDF()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 10px;">PDF İndir</button>
-        <button onclick="window.print()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Yazdır</button>
-    </div>
+    <button class="print-button no-print" onclick="window.print()">🖨️ Yazdır</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>MUTABAKAT RAPORU</h1>
+            <h3>Referans No: ${reconciliation.reference_number}</h3>
+        </div>
 
-    <div class="header">
-        <h1>MUTABAKAT RAPORU</h1>
-        <h3>Referans No: ${reconciliation.reference_number}</h3>
-    </div>
-
-    <div class="company-info">
         <table class="info-table">
             <tr>
                 <th>Şirket Adı</th>
@@ -335,173 +341,85 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
             </tr>
             ` : ''}
         </table>
-    </div>
 
-    <div class="amount-summary">
-        <div class="amount-box">
-            <h4>BİZİM TUTAR</h4>
-            <h2>${reconciliation.our_amount.toLocaleString('tr-TR')} ${reconciliation.currency}</h2>
+        <div class="amount-summary">
+            <div class="amount-box">
+                <h4>BİZİM TUTAR</h4>
+                <h2>${reconciliation.our_amount.toLocaleString('tr-TR')} ${reconciliation.currency}</h2>
+            </div>
+            <div class="amount-box">
+                <h4>ONLARIN TUTARI</h4>
+                <h2>${reconciliation.their_amount.toLocaleString('tr-TR')} ${reconciliation.currency}</h2>
+            </div>
+            <div class="amount-box ${Math.abs(reconciliation.difference) > 0 ? 'negative' : 'neutral'}">
+                <h4>FARK</h4>
+                <h2>${reconciliation.difference.toLocaleString('tr-TR')} ${reconciliation.currency}</h2>
+            </div>
         </div>
-        <div class="amount-box">
-            <h4>ONLARIN TUTARI</h4>
-            <h2>${reconciliation.their_amount.toLocaleString('tr-TR')} ${reconciliation.currency}</h2>
-        </div>
-        <div class="amount-box ${Math.abs(reconciliation.difference) > 0 ? 'negative' : 'neutral'}">
-            <h4>FARK</h4>
-            <h2>${reconciliation.difference.toLocaleString('tr-TR')} ${reconciliation.currency}</h2>
-        </div>
-    </div>
 
-    ${details.length > 0 ? `
-    <h3 style="color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px;">DETAYLAR</h3>
-    <table class="details-table" id="details-table">
-        <thead>
-            <tr>
-                <th style="width: 5%;">Sıra</th>
-                <th style="width: 35%;">Açıklama</th>
-                <th style="width: 15%;">Bizim Tutar</th>
-                <th style="width: 15%;">Onların Tutarı</th>
-                <th style="width: 15%;">Fark</th>
-                <th style="width: 15%;">Notlar</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${details.map(detail => `
+        ${details.length > 0 ? `
+        <h3 style="color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px;">DETAYLAR</h3>
+        <table class="details-table">
+            <thead>
                 <tr>
-                    <td style="text-align: center;">${detail.line_number}</td>
-                    <td>${detail.description}</td>
-                    <td class="number">${detail.our_amount.toLocaleString('tr-TR')}</td>
-                    <td class="number">${detail.their_amount.toLocaleString('tr-TR')}</td>
-                    <td class="number" style="color: ${Math.abs(detail.difference) > 0 ? '#dc3545' : '#28a745'}; font-weight: bold;">
-                        ${detail.difference.toLocaleString('tr-TR')}
-                    </td>
-                    <td>${detail.notes || '-'}</td>
+                    <th style="width: 5%;">Sıra</th>
+                    <th style="width: 35%;">Açıklama</th>
+                    <th style="width: 15%;">Bizim Tutar</th>
+                    <th style="width: 15%;">Onların Tutarı</th>
+                    <th style="width: 15%;">Fark</th>
+                    <th style="width: 15%;">Notlar</th>
                 </tr>
-            `).join('')}
-        </tbody>
-        <tfoot>
-            <tr style="background-color: #f8f9fa; font-weight: bold;">
-                <td colspan="2" style="text-align: right;">TOPLAM:</td>
-                <td class="number">${details.reduce((sum, d) => sum + d.our_amount, 0).toLocaleString('tr-TR')}</td>
-                <td class="number">${details.reduce((sum, d) => sum + d.their_amount, 0).toLocaleString('tr-TR')}</td>
-                <td class="number" style="color: ${Math.abs(details.reduce((sum, d) => sum + d.difference, 0)) > 0 ? '#dc3545' : '#28a745'};">
-                    ${details.reduce((sum, d) => sum + d.difference, 0).toLocaleString('tr-TR')}
-                </td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
-    ` : ''}
+            </thead>
+            <tbody>
+                ${details.map(detail => `
+                    <tr>
+                        <td style="text-align: center;">${detail.line_number}</td>
+                        <td>${detail.description}</td>
+                        <td class="number">${detail.our_amount.toLocaleString('tr-TR')}</td>
+                        <td class="number">${detail.their_amount.toLocaleString('tr-TR')}</td>
+                        <td class="number" style="color: ${Math.abs(detail.difference) > 0 ? '#dc3545' : '#28a745'}; font-weight: bold;">
+                            ${detail.difference.toLocaleString('tr-TR')}
+                        </td>
+                        <td>${detail.notes || '-'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+            <tfoot>
+                <tr style="background-color: #f8f9fa; font-weight: bold;">
+                    <td colspan="2" style="text-align: right;">TOPLAM:</td>
+                    <td class="number">${details.reduce((sum, d) => sum + d.our_amount, 0).toLocaleString('tr-TR')}</td>
+                    <td class="number">${details.reduce((sum, d) => sum + d.their_amount, 0).toLocaleString('tr-TR')}</td>
+                    <td class="number" style="color: ${Math.abs(details.reduce((sum, d) => sum + d.difference, 0)) > 0 ? '#dc3545' : '#28a745'};">
+                        ${details.reduce((sum, d) => sum + d.difference, 0).toLocaleString('tr-TR')}
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        ` : ''}
 
-    <div class="signature-section">
-        <div class="signature-box">
-            <h4>ONAYLAYAN (İLETİGO)</h4>
-            <div class="signature-line"></div>
-            <p><strong>Ad Soyad:</strong> _____________________</p>
-            <p><strong>İmza:</strong></p>
-            <p><strong>Tarih:</strong> ${currentDate}</p>
+        <div class="signature-section">
+            <div class="signature-box">
+                <h4>ONAYLAYAN (İLETİGO)</h4>
+                <div class="signature-line"></div>
+                <p><strong>Ad Soyad:</strong> _____________________</p>
+                <p><strong>İmza:</strong></p>
+                <p><strong>Tarih:</strong> ${currentDate}</p>
+            </div>
+            <div class="signature-box">
+                <h4>KARŞI TARAF (${reconciliation.company_name.toUpperCase()})</h4>
+                <div class="signature-line"></div>
+                <p><strong>Ad Soyad:</strong> _____________________</p>
+                <p><strong>İmza:</strong></p>
+                <p><strong>Tarih:</strong> ${currentDate}</p>
+            </div>
         </div>
-        <div class="signature-box">
-            <h4>KARŞI TARAF (${reconciliation.company_name.toUpperCase()})</h4>
-            <div class="signature-line"></div>
-            <p><strong>Ad Soyad:</strong> _____________________</p>
-            <p><strong>İmza:</strong></p>
-            <p><strong>Tarih:</strong> ${currentDate}</p>
+
+        <div class="footer">
+            <p><strong>Bu belge ${currentDate} tarihinde İletigo Mutabakat Yönetim Sistemi tarafından otomatik olarak oluşturulmuştur.</strong></p>
+            <p>Belge ID: ${reconciliation.reference_number} | Oluşturma Zamanı: ${new Date().toLocaleString('tr-TR')}</p>
         </div>
     </div>
-
-    <div class="footer">
-        <p><strong>Bu belge ${currentDate} tarihinde İletigo Mutabakat Yönetim Sistemi tarafından otomatik olarak oluşturulmuştur.</strong></p>
-        <p>Belge ID: ${reconciliation.reference_number} | Oluşturma Zamanı: ${new Date().toLocaleString('tr-TR')}</p>
-    </div>
-
-    <script>
-        function generatePDF() {
-            // Hide PDF actions for clean PDF
-            document.querySelector('.pdf-actions').style.display = 'none';
-            
-            // Use jsPDF to generate PDF
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-            
-            // Add title
-            doc.setFontSize(20);
-            doc.setFont('helvetica', 'bold');
-            doc.text('MUTABAKAT RAPORU', 105, 20, { align: 'center' });
-            
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Referans No: ${reconciliation.reference_number}', 105, 30, { align: 'center' });
-            
-            // Add company info
-            let yPos = 50;
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Şirket Bilgileri', 20, yPos);
-            
-            yPos += 10;
-            doc.setFont('helvetica', 'normal');
-            doc.text('Şirket: ${reconciliation.company_name}', 20, yPos);
-            yPos += 7;
-            doc.text('Vergi No: ${reconciliation.tax_number || '-'}', 20, yPos);
-            yPos += 7;
-            doc.text('Dönem: ${reconciliation.period_name}', 20, yPos);
-            yPos += 7;
-            doc.text('Başlık: ${reconciliation.title}', 20, yPos);
-            
-            // Add amounts
-            yPos += 20;
-            doc.setFont('helvetica', 'bold');
-            doc.text('Tutar Özeti', 20, yPos);
-            
-            yPos += 10;
-            doc.setFont('helvetica', 'normal');
-            doc.text('Bizim Tutar: ${reconciliation.our_amount.toLocaleString('tr-TR')} ${reconciliation.currency}', 20, yPos);
-            yPos += 7;
-            doc.text('Onların Tutarı: ${reconciliation.their_amount.toLocaleString('tr-TR')} ${reconciliation.currency}', 20, yPos);
-            yPos += 7;
-            doc.text('Fark: ${reconciliation.difference.toLocaleString('tr-TR')} ${reconciliation.currency}', 20, yPos);
-            
-            // Add details table if exists
-            ${details.length > 0 ? `
-            yPos += 20;
-            const tableData = [
-                ${details.map(detail => `['${detail.line_number}', '${detail.description}', '${detail.our_amount.toLocaleString('tr-TR')}', '${detail.their_amount.toLocaleString('tr-TR')}', '${detail.difference.toLocaleString('tr-TR')}']`).join(',')}
-            ];
-            
-            doc.autoTable({
-                head: [['Sıra', 'Açıklama', 'Bizim Tutar', 'Onların Tutarı', 'Fark']],
-                body: tableData,
-                startY: yPos,
-                theme: 'grid',
-                styles: { fontSize: 8 },
-                headStyles: { fillColor: [248, 249, 250] }
-            });
-            ` : ''}
-            
-            // Add signature section
-            const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : yPos + 20;
-            doc.setFont('helvetica', 'bold');
-            doc.text('İmza Alanları', 20, finalY);
-            
-            doc.setFont('helvetica', 'normal');
-            doc.text('ONAYLAYAN (İLETİGO)', 30, finalY + 20);
-            doc.line(30, finalY + 40, 80, finalY + 40);
-            doc.text('Ad Soyad: _______________', 30, finalY + 50);
-            doc.text('Tarih: ${currentDate}', 30, finalY + 60);
-            
-            doc.text('KARŞI TARAF (${reconciliation.company_name.toUpperCase()})', 110, finalY + 20);
-            doc.line(110, finalY + 40, 160, finalY + 40);
-            doc.text('Ad Soyad: _______________', 110, finalY + 50);
-            doc.text('Tarih: ${currentDate}', 110, finalY + 60);
-            
-            // Save PDF
-            doc.save('mutabakat_${reconciliation.reference_number}.pdf');
-            
-            // Show PDF actions again
-            document.querySelector('.pdf-actions').style.display = 'block';
-        }
-    </script>
 </body>
 </html>`;
 }

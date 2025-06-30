@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import puppeteer from 'puppeteer';
 
 export async function POST(
   request: NextRequest,
@@ -57,30 +56,8 @@ export async function POST(
     `;
     const detailsResult = await query(detailsQuery, [id]);
 
-    // Generate HTML content
+    // Generate HTML content for client-side PDF generation
     const htmlContent = generatePDFHTML(reconciliation, detailsResult.rows);
-
-    // Generate PDF using Puppeteer
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
-    const page = await browser.newPage();
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-    
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '20mm',
-        right: '15mm',
-        bottom: '20mm',
-        left: '15mm'
-      }
-    });
-
-    await browser.close();
 
     // Log activity
     const activityQuery = `
@@ -99,10 +76,11 @@ export async function POST(
       JSON.stringify({ reference_number: reconciliation.reference_number })
     ]);
 
-    return new NextResponse(pdfBuffer, {
+    // Return HTML for client-side PDF generation
+    return new NextResponse(htmlContent, {
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="mutabakat_${reconciliation.reference_number}.pdf"`
+        'Content-Type': 'text/html',
+        'X-PDF-Filename': `mutabakat_${reconciliation.reference_number}.pdf`
       }
     });
 
@@ -125,54 +103,70 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
     <meta charset="UTF-8">
     <title>Mutabakat Raporu - ${reconciliation.reference_number}</title>
     <style>
+        @media print {
+            @page { margin: 20mm; }
+            body { -webkit-print-color-adjust: exact; }
+        }
+        
         body { 
-            font-family: Arial, sans-serif; 
+            font-family: 'Arial', sans-serif; 
             margin: 0; 
             padding: 20px;
             font-size: 12px;
             line-height: 1.4;
+            color: #333;
         }
+        
         .header { 
             text-align: center; 
             margin-bottom: 30px; 
             border-bottom: 2px solid #333;
             padding-bottom: 20px;
         }
+        
         .header h1 {
             color: #333;
             margin: 0;
             font-size: 24px;
+            font-weight: bold;
         }
+        
         .header h3 {
             color: #666;
             margin: 10px 0 0 0;
             font-size: 16px;
         }
+        
         .company-info { 
             margin-bottom: 20px; 
         }
+        
         .info-table { 
             width: 100%; 
             border-collapse: collapse; 
             margin-bottom: 20px; 
         }
+        
         .info-table th, .info-table td { 
             border: 1px solid #ddd; 
             padding: 8px; 
             text-align: left; 
             font-size: 11px;
         }
+        
         .info-table th { 
             background-color: #f8f9fa; 
             font-weight: bold;
             width: 25%;
         }
+        
         .amount-summary { 
             display: flex; 
             justify-content: space-between; 
             margin-bottom: 20px; 
             gap: 10px;
         }
+        
         .amount-box { 
             border: 2px solid #ddd; 
             padding: 15px; 
@@ -180,43 +174,52 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
             flex: 1;
             border-radius: 5px;
         }
+        
         .amount-box h4 {
             margin: 0 0 10px 0;
             color: #666;
             font-size: 12px;
         }
+        
         .amount-box h2 {
             margin: 0;
             font-size: 18px;
             font-weight: bold;
         }
+        
         .amount-box.positive h2 { color: #28a745; }
         .amount-box.negative h2 { color: #dc3545; }
         .amount-box.neutral h2 { color: #6c757d; }
+        
         .details-table { 
             width: 100%; 
             border-collapse: collapse; 
             margin-bottom: 30px; 
         }
+        
         .details-table th, .details-table td { 
             border: 1px solid #ddd; 
             padding: 6px; 
             text-align: left; 
             font-size: 10px;
         }
+        
         .details-table th { 
             background-color: #f8f9fa; 
             font-weight: bold;
         }
+        
         .details-table td.number {
             text-align: right;
         }
+        
         .signature-section { 
             margin-top: 50px; 
             display: flex; 
             justify-content: space-between; 
             gap: 20px;
         }
+        
         .signature-box { 
             border: 1px solid #ddd; 
             padding: 20px; 
@@ -225,18 +228,21 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
             min-height: 100px;
             border-radius: 5px;
         }
+        
         .signature-box h4 {
             margin: 0 0 20px 0;
             color: #333;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
         }
+        
         .signature-line {
             border-bottom: 1px solid #333;
             width: 200px;
             margin: 40px auto 10px auto;
             height: 1px;
         }
+        
         .footer { 
             margin-top: 30px; 
             text-align: center; 
@@ -245,6 +251,7 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
             border-top: 1px solid #eee;
             padding-top: 20px;
         }
+        
         .status-badge {
             display: inline-block;
             padding: 4px 8px;
@@ -253,14 +260,37 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
             font-weight: bold;
             text-transform: uppercase;
         }
+        
         .status-pending { background-color: #fff3cd; color: #856404; }
         .status-matched { background-color: #d4edda; color: #155724; }
         .status-disputed { background-color: #f8d7da; color: #721c24; }
         .status-resolved { background-color: #d1ecf1; color: #0c5460; }
         .status-cancelled { background-color: #e2e3e5; color: #383d41; }
+        
+        .pdf-actions {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        @media print {
+            .pdf-actions { display: none; }
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+    <div class="pdf-actions">
+        <button onclick="generatePDF()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-right: 10px;">PDF İndir</button>
+        <button onclick="window.print()" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Yazdır</button>
+    </div>
+
     <div class="header">
         <h1>MUTABAKAT RAPORU</h1>
         <h3>Referans No: ${reconciliation.reference_number}</h3>
@@ -324,7 +354,7 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
 
     ${details.length > 0 ? `
     <h3 style="color: #333; border-bottom: 1px solid #ddd; padding-bottom: 10px;">DETAYLAR</h3>
-    <table class="details-table">
+    <table class="details-table" id="details-table">
         <thead>
             <tr>
                 <th style="width: 5%;">Sıra</th>
@@ -384,6 +414,94 @@ function generatePDFHTML(reconciliation: any, details: any[]) {
         <p><strong>Bu belge ${currentDate} tarihinde İletigo Mutabakat Yönetim Sistemi tarafından otomatik olarak oluşturulmuştur.</strong></p>
         <p>Belge ID: ${reconciliation.reference_number} | Oluşturma Zamanı: ${new Date().toLocaleString('tr-TR')}</p>
     </div>
+
+    <script>
+        function generatePDF() {
+            // Hide PDF actions for clean PDF
+            document.querySelector('.pdf-actions').style.display = 'none';
+            
+            // Use jsPDF to generate PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.setFont('helvetica', 'bold');
+            doc.text('MUTABAKAT RAPORU', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Referans No: ${reconciliation.reference_number}', 105, 30, { align: 'center' });
+            
+            // Add company info
+            let yPos = 50;
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Şirket Bilgileri', 20, yPos);
+            
+            yPos += 10;
+            doc.setFont('helvetica', 'normal');
+            doc.text('Şirket: ${reconciliation.company_name}', 20, yPos);
+            yPos += 7;
+            doc.text('Vergi No: ${reconciliation.tax_number || '-'}', 20, yPos);
+            yPos += 7;
+            doc.text('Dönem: ${reconciliation.period_name}', 20, yPos);
+            yPos += 7;
+            doc.text('Başlık: ${reconciliation.title}', 20, yPos);
+            
+            // Add amounts
+            yPos += 20;
+            doc.setFont('helvetica', 'bold');
+            doc.text('Tutar Özeti', 20, yPos);
+            
+            yPos += 10;
+            doc.setFont('helvetica', 'normal');
+            doc.text('Bizim Tutar: ${reconciliation.our_amount.toLocaleString('tr-TR')} ${reconciliation.currency}', 20, yPos);
+            yPos += 7;
+            doc.text('Onların Tutarı: ${reconciliation.their_amount.toLocaleString('tr-TR')} ${reconciliation.currency}', 20, yPos);
+            yPos += 7;
+            doc.text('Fark: ${reconciliation.difference.toLocaleString('tr-TR')} ${reconciliation.currency}', 20, yPos);
+            
+            // Add details table if exists
+            ${details.length > 0 ? `
+            yPos += 20;
+            const tableData = [
+                ${details.map(detail => `['${detail.line_number}', '${detail.description}', '${detail.our_amount.toLocaleString('tr-TR')}', '${detail.their_amount.toLocaleString('tr-TR')}', '${detail.difference.toLocaleString('tr-TR')}']`).join(',')}
+            ];
+            
+            doc.autoTable({
+                head: [['Sıra', 'Açıklama', 'Bizim Tutar', 'Onların Tutarı', 'Fark']],
+                body: tableData,
+                startY: yPos,
+                theme: 'grid',
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [248, 249, 250] }
+            });
+            ` : ''}
+            
+            // Add signature section
+            const finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 20 : yPos + 20;
+            doc.setFont('helvetica', 'bold');
+            doc.text('İmza Alanları', 20, finalY);
+            
+            doc.setFont('helvetica', 'normal');
+            doc.text('ONAYLAYAN (İLETİGO)', 30, finalY + 20);
+            doc.line(30, finalY + 40, 80, finalY + 40);
+            doc.text('Ad Soyad: _______________', 30, finalY + 50);
+            doc.text('Tarih: ${currentDate}', 30, finalY + 60);
+            
+            doc.text('KARŞI TARAF (${reconciliation.company_name.toUpperCase()})', 110, finalY + 20);
+            doc.line(110, finalY + 40, 160, finalY + 40);
+            doc.text('Ad Soyad: _______________', 110, finalY + 50);
+            doc.text('Tarih: ${currentDate}', 110, finalY + 60);
+            
+            // Save PDF
+            doc.save('mutabakat_${reconciliation.reference_number}.pdf');
+            
+            // Show PDF actions again
+            document.querySelector('.pdf-actions').style.display = 'block';
+        }
+    </script>
 </body>
 </html>`;
 }
